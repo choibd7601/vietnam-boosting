@@ -1,0 +1,292 @@
+<title>하노이 대리육성</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: 야간 교대 근무 콘셉트. 한국이 자는 동안 베트남 팀이 키운다. 한 줄 메시지 → 광고 슬라이드 → 이유 → 진행 순서 → 가격 → FAQ, 하단 고정 카카오 버튼 */
+:root{
+  --night:#0d1714;      /* 바탕: 깊은 정글 그린 블랙 */
+  --panel:#15231f;
+  --line:#25382f;
+  --text:#e9efe9;
+  --muted:#93a69b;
+  --jade:#3fcf8e;       /* 포인트: 진행/레벨업 */
+  --lantern:#ff5b3a;    /* 강조: 호이안 등불 */
+  --kakao:#fee500; --kakao-ink:#191600;
+  --f-display:"Black Han Sans","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --f-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{background:var(--night);color:var(--text);font-family:var(--f-body);font-size:16px;line-height:1.65;padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;line-height:1.2;text-wrap:balance;margin:0}
+p{margin:0}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--jade);outline-offset:3px}
+
+/* header */
+header .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:18px}
+.logo{font-family:var(--f-display);font-size:22px;letter-spacing:.02em;text-decoration:none}
+.logo span{color:var(--jade)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:12px;font-weight:700;text-decoration:none;cursor:pointer;border:0;font-family:var(--f-body);transition:transform .15s}
+.btn:hover{transform:translateY(-1px)}
+.btn-kakao{background:var(--kakao);color:var(--kakao-ink)}
+.btn-sm{padding:9px 14px;font-size:14px}
+.btn-lg{padding:16px 26px;font-size:18px}
+.kakao-ico{width:20px;height:20px;flex:none}
+
+/* hero */
+.hero .wrap{padding-block:28px 40px;display:grid;gap:22px}
+.clock{display:flex;flex-wrap:wrap;gap:10px;font-family:var(--f-mono);font-size:13px;color:var(--muted)}
+.clock b{color:var(--text);font-weight:500}
+.clock .live{color:var(--jade)}
+.hero h1{font-size:clamp(40px,8vw,84px);letter-spacing:-.01em}
+.hero h1 em{font-style:normal;color:var(--lantern)}
+.hero .lede{font-size:clamp(17px,2.2vw,20px);color:var(--muted);max-width:36em}
+.hero .lede strong{color:var(--text)}
+.cta-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.cta-note{font-size:14px;color:var(--muted)}
+
+/* slider */
+.slider{position:relative;border-radius:18px;overflow:hidden;background:var(--panel);border:1px solid var(--line);max-width:100%}
+.track{display:flex;transition:transform .5s ease}
+.slide{flex:0 0 100%;aspect-ratio:16/9;position:relative;max-width:100%}
+.slide img{width:100%;height:100%;object-fit:cover;display:block}
+.ph{position:absolute;inset:0;display:grid;place-content:center;text-align:center;gap:6px;padding:20px}
+.ph b{font-family:var(--f-display);font-size:clamp(22px,4vw,40px);font-weight:400}
+.ph small{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.ph1{background:radial-gradient(circle at 20% 30%,#1f4a39,transparent 60%),radial-gradient(circle at 85% 80%,#4a1d14,transparent 55%),var(--panel)}
+.ph2{background:radial-gradient(circle at 75% 25%,#1c3f52,transparent 60%),radial-gradient(circle at 15% 85%,#1f4a39,transparent 55%),var(--panel)}
+.ph3{background:radial-gradient(circle at 50% 0%,#4a3a14,transparent 60%),radial-gradient(circle at 90% 90%,#1f4a39,transparent 55%),var(--panel)}
+.ph4{background:radial-gradient(circle at 10% 10%,#4a1d14,transparent 55%),radial-gradient(circle at 80% 70%,#1c3f52,transparent 60%),var(--panel)}
+.nav{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:42px;border-radius:50%;border:0;background:rgba(13,23,20,.7);color:var(--text);font-size:20px;cursor:pointer}
+.prev{left:10px}.next{right:10px}
+.dots{position:absolute;bottom:12px;left:0;right:0;display:flex;justify-content:center;gap:8px}
+.dots button{width:9px;height:9px;border-radius:50%;border:0;background:rgba(233,239,233,.35);cursor:pointer;padding:0}
+.dots button[aria-current="true"]{background:var(--jade);width:24px;border-radius:5px}
+
+/* sections */
+section.band .wrap{padding-block:56px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--jade);margin-bottom:10px}
+.band h2{font-size:clamp(28px,4.4vw,44px);margin-bottom:28px}
+.band.alt{background:var(--panel);border-block:1px solid var(--line)}
+
+.why{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:28px}
+.why div{min-width:0;display:grid;gap:8px;align-content:start}
+.why .big{font-family:var(--f-display);font-size:42px;color:var(--lantern);line-height:1}
+.why h3{font-size:21px}
+.why p{color:var(--muted)}
+
+/* 2교대 타임라인 */
+.shift{margin-top:36px;display:grid;gap:8px}
+.shift .bar{display:grid;grid-template-columns:repeat(24,1fr);height:34px;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+.shift .bar i{background:var(--jade);opacity:.85}
+.shift .bar i.b{background:#2a9d6b}
+.shift .legend{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.shift .cap{font-size:14px;color:var(--muted)}
+
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;counter-reset:s}
+.steps li{counter-increment:s;padding:20px;border:1px solid var(--line);border-radius:14px;display:grid;gap:6px;align-content:start;min-width:0}
+.steps li::before{content:"STEP " counter(s);font-family:var(--f-mono);font-size:12px;color:var(--jade)}
+.steps b{font-size:18px}
+.steps span{color:var(--muted);font-size:15px}
+
+/* price */
+.prices{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.plan{padding:24px;border-radius:16px;background:var(--night);border:1px solid var(--line);display:grid;gap:14px;align-content:start;position:relative}
+.plan.best{border-color:var(--lantern)}
+.plan .tag{position:absolute;top:-12px;right:18px;background:var(--lantern);color:#fff;font-size:12px;font-weight:700;padding:4px 10px;border-radius:99px}
+.plan h3{font-size:24px}
+.plan .won{font-family:var(--f-display);font-size:40px;line-height:1}
+.plan .won small{font-family:var(--f-body);font-size:15px;color:var(--muted)}
+.plan ul{margin:0;padding-left:18px;color:var(--muted);display:grid;gap:4px}
+.price-note{margin-top:18px;font-size:14px;color:var(--muted)}
+.sample{display:inline-block;font-family:var(--f-mono);font-size:11px;color:var(--lantern);border:1px solid var(--lantern);border-radius:4px;padding:1px 6px;margin-left:8px;vertical-align:middle}
+
+/* faq */
+.faq{display:grid;gap:10px;max-width:760px}
+.faq details{border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.faq summary{cursor:pointer;font-weight:700}
+.faq p{margin-top:10px;color:var(--muted)}
+
+.final .wrap{padding-block:64px;text-align:center;display:grid;gap:18px;justify-items:center}
+.final h2{font-size:clamp(30px,5vw,52px)}
+.final p{color:var(--muted)}
+footer .wrap{padding-block:28px;font-size:13px;color:var(--muted);border-top:1px solid var(--line)}
+
+/* 하단 고정 상담 바 */
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(13,23,20,.94);backdrop-filter:blur(8px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.dock .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:12px}
+.dock p{font-size:14px;color:var(--muted);min-width:0}
+.dock p b{color:var(--text)}
+@media (max-width:520px){.dock p{display:none}.dock .btn{flex:1}}
+</style>
+
+<header>
+  <div class="wrap">
+    <a class="logo" href="#top">하노이<span>대리육성</span></a>
+    <a class="btn btn-kakao btn-sm kakao-link" href="#" target="_blank" rel="noopener">
+      <svg class="kakao-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3C6.5 3 2 6.6 2 11c0 2.8 1.9 5.3 4.7 6.7l-1 3.6c-.1.3.3.6.6.4l4.2-2.8c.5.1 1 .1 1.5.1 5.5 0 10-3.6 10-8S17.5 3 12 3z"/></svg>
+      카톡 상담
+    </a>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <div class="clock" aria-label="현재 시각">
+        <span>서울 <b id="t-kr">--:--</b></span>
+        <span>하노이 <b id="t-vn">--:--</b></span>
+        <span class="live">● 지금도 육성 중</span>
+      </div>
+      <h1>주무시는 동안<br><em>베트남</em>에서 대신 키워드립니다</h1>
+      <p class="lede">퇴근하고 피곤하신가요? 하노이 전담팀이 <strong>2교대 24시간</strong>으로 캐릭터를 육성해드립니다. 아침에 접속하면 레벨이 올라 있습니다.</p>
+      <div class="cta-row">
+        <a class="btn btn-kakao btn-lg kakao-link" href="#" target="_blank" rel="noopener">
+          <svg class="kakao-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3C6.5 3 2 6.6 2 11c0 2.8 1.9 5.3 4.7 6.7l-1 3.6c-.1.3.3.6.6.4l4.2-2.8c.5.1 1 .1 1.5.1 5.5 0 10-3.6 10-8S17.5 3 12 3z"/></svg>
+          카카오톡으로 무료 견적 받기
+        </a>
+        <span class="cta-note">평균 응답 10분 · 상담만 받아도 괜찮습니다</span>
+      </div>
+
+      <!-- 광고 이미지 슬라이드: 각 .slide 안의 .ph 를 <img src="파일명.jpg" alt="설명"> 으로 바꾸면 됩니다 (권장 1200×675) -->
+      <div class="slider" aria-roledescription="carousel" aria-label="광고 이미지">
+        <div class="track" id="track">
+          <div class="slide"><div class="ph ph1"><b>광고 이미지 1</b><small>1200 × 675 권장 · 유튜브 광고 장면</small></div></div>
+          <div class="slide"><div class="ph ph2"><b>광고 이미지 2</b><small>1200 × 675 권장 · 육성 전후 비교</small></div></div>
+          <div class="slide"><div class="ph ph3"><b>광고 이미지 3</b><small>1200 × 675 권장 · 이벤트/할인 배너</small></div></div>
+          <div class="slide"><div class="ph ph4"><b>광고 이미지 4</b><small>1200 × 675 권장 · 고객 후기 캡처</small></div></div>
+        </div>
+        <button class="nav prev" id="prev" aria-label="이전 이미지">‹</button>
+        <button class="nav next" id="next" aria-label="다음 이미지">›</button>
+        <div class="dots" id="dots"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band alt" id="why">
+    <div class="wrap">
+      <p class="eyebrow">왜 베트남인가</p>
+      <h2>한국 시간 밤에도 손이 쉬지 않습니다</h2>
+      <div class="why">
+        <div><span class="big">−2h</span><h3>시차가 거의 없습니다</h3><p>하노이는 한국보다 2시간 늦습니다. 한국 업무 시간에 바로 소통하고, 진행 상황을 실시간으로 받아보세요.</p></div>
+        <div><span class="big">24h</span><h3>2교대로 멈추지 않습니다</h3><p>주간조와 야간조가 교대하며 접속을 이어갑니다. 혼자 할 때보다 훨씬 빠르게 목표에 도달합니다.</p></div>
+        <div><span class="big">1:1</span><h3>전담 담당자 배정</h3><p>한 계정은 처음부터 끝까지 같은 팀이 맡습니다. 매일 스크린샷으로 진행 보고를 드립니다.</p></div>
+      </div>
+      <div class="shift" aria-label="하루 교대 근무표">
+        <div class="bar">
+          <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          <i class="b"></i><i class="b"></i><i class="b"></i><i class="b"></i><i class="b"></i><i class="b"></i><i class="b"></i><i class="b"></i><i class="b"></i><i class="b"></i><i class="b"></i><i class="b"></i>
+        </div>
+        <div class="legend"><span>00시</span><span>06시</span><span>12시</span><span>18시</span><span>24시</span></div>
+        <p class="cap">한국 시간 기준 · 주간조 09–21시, 야간조 21–09시 교대 운영</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="process">
+    <div class="wrap">
+      <p class="eyebrow">진행 순서</p>
+      <h2>카톡 한 번이면 시작됩니다</h2>
+      <ol class="steps">
+        <li><b>카톡 상담</b><span>게임, 현재 레벨, 원하는 목표를 알려주세요.</span></li>
+        <li><b>견적 안내</b><span>예상 기간과 금액을 10분 안에 보내드립니다.</span></li>
+        <li><b>결제 · 접수</b><span>확인 즉시 하노이 전담팀이 배정됩니다.</span></li>
+        <li><b>육성 · 매일 보고</b><span>진행 스크린샷을 카톡으로 받아보세요.</span></li>
+        <li><b>완료 · 인계</b><span>목표 달성 후 비밀번호 변경을 안내해드립니다.</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="band alt" id="price">
+    <div class="wrap">
+      <p class="eyebrow">가격</p>
+      <h2>필요한 만큼만 맡기세요 <span class="sample">예시 가격</span></h2>
+      <div class="prices">
+        <div class="plan">
+          <h3>체험</h3>
+          <p class="won">49,000<small>원 / 3일</small></p>
+          <ul><li>1일 12시간 접속</li><li>일일 퀘스트 · 사냥</li><li>매일 진행 보고</li></ul>
+        </div>
+        <div class="plan best">
+          <span class="tag">가장 많이 선택</span>
+          <h3>집중 육성</h3>
+          <p class="won">129,000<small>원 / 7일</small></p>
+          <ul><li>2교대 24시간 접속</li><li>레벨업 · 장비 파밍</li><li>매일 진행 보고</li></ul>
+        </div>
+        <div class="plan">
+          <h3>월 관리</h3>
+          <p class="won">390,000<small>원 / 30일</small></p>
+          <ul><li>2교대 24시간 접속</li><li>시즌 · 이벤트 콘텐츠 포함</li><li>전담 담당자 1:1</li></ul>
+        </div>
+      </div>
+      <p class="price-note">게임과 목표에 따라 금액이 달라질 수 있습니다. 정확한 금액은 카톡 상담으로 안내해드립니다.</p>
+    </div>
+  </section>
+
+  <section class="band" id="faq">
+    <div class="wrap">
+      <p class="eyebrow">자주 묻는 질문</p>
+      <h2>맡기기 전에 궁금한 점</h2>
+      <div class="faq">
+        <details><summary>어떤 게임을 맡길 수 있나요?</summary><p>PC와 모바일 주요 게임을 진행합니다. 원하시는 게임을 카톡으로 알려주시면 가능 여부를 바로 확인해드립니다.</p></details>
+        <details><summary>계정은 안전한가요?</summary><p>전담 담당자 한 명만 계정에 접속하고, 다른 용도로 사용하지 않습니다. 완료 후 비밀번호를 바로 바꾸시도록 안내해드립니다.</p></details>
+        <details><summary>진행 상황은 어떻게 확인하나요?</summary><p>매일 정해진 시간에 레벨과 장비 화면 스크린샷을 카카오톡으로 보내드립니다.</p></details>
+        <details><summary>중간에 그만둘 수 있나요?</summary><p>네. 남은 기간에 맞춰 정산 기준을 상담 때 안내해드립니다.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="final">
+    <div class="wrap">
+      <h2>오늘 밤부터 맡겨보세요</h2>
+      <p>유튜브 보고 오셨다면 상담 때 말씀해주세요.</p>
+      <a class="btn btn-kakao btn-lg kakao-link" href="#" target="_blank" rel="noopener">
+        <svg class="kakao-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3C6.5 3 2 6.6 2 11c0 2.8 1.9 5.3 4.7 6.7l-1 3.6c-.1.3.3.6.6.4l4.2-2.8c.5.1 1 .1 1.5.1 5.5 0 10-3.6 10-8S17.5 3 12 3z"/></svg>
+        카카오톡 상담 시작하기
+      </a>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap">하노이 대리육성 · 상담 운영 매일 10:00–02:00 (한국 시간)</div></footer>
+
+<div class="dock">
+  <div class="wrap">
+    <p><b>지금 상담하면</b> 오늘 밤부터 육성 시작</p>
+    <a class="btn btn-kakao btn-sm kakao-link" href="#" target="_blank" rel="noopener">
+      <svg class="kakao-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3C6.5 3 2 6.6 2 11c0 2.8 1.9 5.3 4.7 6.7l-1 3.6c-.1.3.3.6.6.4l4.2-2.8c.5.1 1 .1 1.5.1 5.5 0 10-3.6 10-8S17.5 3 12 3z"/></svg>
+      카톡 상담하기
+    </a>
+  </div>
+</div>
+
+<script>
+// ▼ 카카오톡 채널 채팅 주소를 여기에 넣으세요. 예: https://pf.kakao.com/_abcde/chat
+const KAKAO_URL = "https://pf.kakao.com/_채널ID/chat";
+document.querySelectorAll(".kakao-link").forEach(a => a.href = KAKAO_URL);
+
+// 서울/하노이 시계
+function tick(){
+  const f = tz => new Intl.DateTimeFormat("ko-KR",{hour:"2-digit",minute:"2-digit",hour12:false,timeZone:tz}).format(new Date());
+  try{document.getElementById("t-kr").textContent=f("Asia/Seoul");document.getElementById("t-vn").textContent=f("Asia/Ho_Chi_Minh");}catch(e){}
+}
+tick(); setInterval(tick,30000);
+
+// 슬라이더
+const track=document.getElementById("track"), slides=track.children, dots=document.getElementById("dots");
+let i=0, timer;
+for(let k=0;k<slides.length;k++){const b=document.createElement("button");b.setAttribute("aria-label",(k+1)+"번 이미지");b.onclick=()=>go(k,true);dots.appendChild(b);}
+function go(n,user){i=(n+slides.length)%slides.length;track.style.transform=`translateX(-${i*100}%)`;[...dots.children].forEach((d,k)=>d.setAttribute("aria-current",k===i));if(user)restart();}
+function restart(){clearInterval(timer);if(!matchMedia("(prefers-reduced-motion: reduce)").matches)timer=setInterval(()=>go(i+1),4000);}
+document.getElementById("prev").onclick=()=>go(i-1,true);
+document.getElementById("next").onclick=()=>go(i+1,true);
+let sx=null;track.addEventListener("touchstart",e=>sx=e.touches[0].clientX,{passive:true});
+track.addEventListener("touchend",e=>{if(sx===null)return;const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>40)go(i+(dx<0?1:-1),true);sx=null;});
+go(0);restart();
+</script>
